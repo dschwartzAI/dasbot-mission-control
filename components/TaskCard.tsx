@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ExternalLink, Clock, Calendar, Terminal } from "lucide-react";
+import { ExternalLink, Clock, Calendar, Terminal, Link2 } from "lucide-react";
 import { useState } from "react";
 
 interface TaskCardProps {
@@ -60,36 +60,44 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Card className="cursor-pointer hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10 bg-slate-900/50 border-slate-700/50 backdrop-blur">
-          <CardHeader className="pb-3">
+        <Card className="group cursor-pointer hover:border-cyan-500/70 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 hover:-translate-y-0.5 bg-slate-900/70 border-slate-700/60 backdrop-blur-sm">
+          <CardHeader className="pb-3 space-y-3">
             <div className="flex items-start justify-between gap-2">
-              <CardTitle className="text-sm font-medium text-slate-100">
+              <CardTitle className="text-base font-semibold text-slate-50 leading-snug group-hover:text-cyan-50 transition-colors">
                 {task.title}
               </CardTitle>
               {task.priority && (
-                <Badge className={`${getPriorityColor(task.priority)} text-xs px-1.5 py-0.5`}>
+                <Badge className={`${getPriorityColor(task.priority)} text-xs px-2 py-0.5 font-medium`}>
                   {task.priority}
                 </Badge>
               )}
             </div>
+            {task.description && (
+              <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">
+                {task.description}
+              </p>
+            )}
           </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-slate-400 line-clamp-2">
-              {task.description}
-            </p>
-
+          <CardContent className="space-y-4">
             {task.progress !== undefined && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-400">
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-medium text-slate-300">
                   <span>Progress</span>
-                  <span>{task.progress}%</span>
+                  <span className="tabular-nums text-cyan-400">{task.progress}%</span>
                 </div>
-                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
                   <div
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-400 transition-all duration-500 shadow-lg shadow-cyan-500/30"
                     style={{ width: `${task.progress}%` }}
                   />
                 </div>
+              </div>
+            )}
+
+            {task.links && task.links.length > 0 && (
+              <div className="flex items-center gap-2 text-xs text-cyan-400 font-medium group-hover:text-cyan-300 transition-colors">
+                <Link2 className="w-3.5 h-3.5" />
+                <span>{task.links.length} link{task.links.length !== 1 ? 's' : ''}</span>
               </div>
             )}
 
@@ -98,7 +106,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="text-xs bg-slate-800/50 text-slate-300 border-slate-600"
+                  className="text-xs bg-slate-800/70 text-slate-300 border-slate-600/70 hover:bg-slate-700/70 hover:border-slate-500 transition-colors"
                 >
                   {tag}
                 </Badge>
@@ -106,30 +114,30 @@ export function TaskCard({ task }: TaskCardProps) {
               {task.tags && task.tags.length > 3 && (
                 <Badge
                   variant="outline"
-                  className="text-xs bg-slate-800/50 text-slate-300 border-slate-600"
+                  className="text-xs bg-slate-800/70 text-slate-400 border-slate-600/70"
                 >
                   +{task.tags.length - 3}
                 </Badge>
               )}
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-800/50">
               {task.estimatedCompletion && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
                   <span>{formatDate(task.estimatedCompletion)}</span>
                 </div>
               )}
               {task.scheduledFor && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
                   <span>{formatDate(task.scheduledFor)}</span>
                 </div>
               )}
               {task.subagentSession && (
-                <div className="flex items-center gap-1 text-cyan-400">
-                  <Terminal className="w-3 h-3" />
-                  <span>Agent</span>
+                <div className="flex items-center gap-1.5 text-cyan-400">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span className="font-medium">Agent</span>
                 </div>
               )}
             </div>
