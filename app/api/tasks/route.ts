@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const GATEWAY_API_URL = process.env.GATEWAY_API_URL || 'https://quiet-human-discounted-million.trycloudflare.com';
-const GATEWAY_API_TOKEN = process.env.GATEWAY_API_TOKEN || '';
+const GATEWAY_API_TOKEN = process.env.GATEWAY_API_TOKEN || 'dasbot-mission-control-2026';
 
 interface Task {
   id: string;
