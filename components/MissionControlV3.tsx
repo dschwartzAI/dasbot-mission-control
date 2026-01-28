@@ -41,14 +41,27 @@ interface DashboardData {
     title: string;
     timestamp: string;
   }>;
+  cronJobs: Array<{
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    schedule: string;
+    nextRun: string;
+    enabled: boolean;
+    tags: string[];
+  }>;
   timestamp: string;
 }
+
+type TabView = 'tasks' | 'email' | 'calendar';
 
 export function MissionControlV3() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [activeTab, setActiveTab] = useState<TabView>('tasks');
 
   const fetchData = async () => {
     try {
@@ -115,10 +128,13 @@ export function MissionControlV3() {
     };
   });
 
+  // Merge cron jobs into kanban tasks
+  const allTasks = [...(data.cronJobs || []), ...kanbanTasks];
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header with Stats Bar */}
-      <header className="border-b border-border/50 backdrop-blur">
+    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
+      {/* Header with Stats Bar and Tabs */}
+      <header className="border-b border-border/50 backdrop-blur flex-shrink-0">
         <div className="px-6 py-4">
           {/* Top Row: Title + Refresh */}
           <div className="flex items-center justify-between mb-4">
@@ -143,7 +159,7 @@ export function MissionControlV3() {
           </div>
           
           {/* Stats Bar */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 mb-4">
             <div className="stat-card">
               <div className="flex items-center gap-2 mb-1">
                 <Clock className="h-4 w-4 text-blue-400" />
@@ -184,34 +200,90 @@ export function MissionControlV3() {
               </p>
             </div>
           </div>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'tasks'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              Tasks
+            </button>
+            <button
+              onClick={() => setActiveTab('email')}
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'email'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              Email
+              {data.emails.importantCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-red-500 text-white">
+                  {data.emails.importantCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'calendar'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              Calendar
+              {data.calendar.events.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">
+                  {data.calendar.events.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Full viewport height */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left: Kanban Board (80% width) */}
-        <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="flex-1 px-6 py-4 overflow-y-auto">
-            <KanbanBoardV3 tasks={kanbanTasks} />
-          </div>
-          
-          {/* Bottom: Email + Calendar */}
-          <div className="border-t border-border/50 px-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <EmailWidget
-                threads={data.emails.threads}
-                importantCount={data.emails.importantCount}
-                unreadCount={data.emails.unreadCount}
-              />
-              <CalendarWidget events={data.calendar.events} />
+        {/* Tab Content */}
+        <div className="flex-1 overflow-hidden flex">
+          {activeTab === 'tasks' && (
+            <div className="flex-1 px-6 py-4 overflow-hidden">
+              <KanbanBoardV3 tasks={allTasks} />
             </div>
-          </div>
+          )}
+          
+          {activeTab === 'email' && (
+            <div className="flex-1 px-6 py-4 overflow-y-auto">
+              <div className="max-w-4xl mx-auto">
+                <EmailWidget
+                  threads={data.emails.threads}
+                  importantCount={data.emails.importantCount}
+                  unreadCount={data.emails.unreadCount}
+                />
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'calendar' && (
+            <div className="flex-1 px-6 py-4 overflow-y-auto">
+              <div className="max-w-4xl mx-auto">
+                <CalendarWidget events={data.calendar.events} />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right: Activity Feed (20% width) */}
-        <div className="w-80 border-l border-border/50 p-4">
-          <ActivityFeed items={data.activity} />
-        </div>
+        {/* Right: Activity Feed (only show on Tasks tab) */}
+        {activeTab === 'tasks' && (
+          <div className="w-80 border-l border-border/50 p-4 flex-shrink-0">
+            <ActivityFeed items={data.activity} />
+          </div>
+        )}
       </div>
     </div>
   );

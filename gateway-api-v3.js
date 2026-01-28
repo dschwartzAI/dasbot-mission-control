@@ -217,6 +217,51 @@ async function getTaskStats() {
   }
 }
 
+async function getCronJobs() {
+  const cached = getCached('cronJobs');
+  if (cached) return cached;
+
+  try {
+    const { stdout } = await execAsync('clawdbot cron list --json 2>/dev/null');
+    
+    // Extract JSON from output (may have extra text before/after)
+    let jsonStr = stdout.trim();
+    const jsonStart = jsonStr.indexOf('{');
+    const jsonEnd = jsonStr.lastIndexOf('}') + 1;
+    
+    if (jsonStart >= 0 && jsonEnd > jsonStart) {
+      jsonStr = jsonStr.substring(jsonStart, jsonEnd);
+    }
+    
+    const result = JSON.parse(jsonStr);
+    
+    const cronJobs = (result.jobs || []).map(job => ({
+      id: job.id,
+      title: job.name,
+      description: job.payload?.message?.substring(0, 100) || 'Scheduled task',
+      status: 'recurring',
+      priority: 'medium',
+      tags: ['cron', 'automated'],
+      assignee: 'DasBot',
+      schedule: job.schedule?.expr || 'Unknown',
+      nextRun: job.state?.nextRunAtMs ? new Date(job.state.nextRunAtMs).toISOString() : null,
+      enabled: job.enabled,
+      timestamp: new Date(job.createdAtMs).toISOString(),
+    }));
+    
+    // Cache cron jobs for 2 minutes
+    if (!cache.cronJobs) {
+      cache.cronJobs = { data: null, timestamp: 0, ttl: 120000 };
+    }
+    setCache('cronJobs', cronJobs);
+    
+    return cronJobs;
+  } catch (error) {
+    console.error('Cron jobs error:', error.message);
+    return [];
+  }
+}
+
 async function getActivityFeed() {
   // Get recent DasBot actions from task history
   try {
@@ -258,11 +303,12 @@ const server = http.createServer(async (req, res) => {
     } 
     else if (req.url === '/dashboard') {
       // v3: Streamlined dashboard with Kanban focus
-      const [emails, calendar, taskStats, activity] = await Promise.all([
+      const [emails, calendar, taskStats, activity, cronJobs] = await Promise.all([
         getImportantEmails(),
         getUpcomingCalendar(),
         getTaskStats(),
         getActivityFeed(),
+        getCronJobs(),
       ]);
       
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -271,6 +317,7 @@ const server = http.createServer(async (req, res) => {
         calendar,
         taskStats,
         activity,
+        cronJobs,
         timestamp: new Date().toISOString(),
       }));
     }
@@ -278,6 +325,11 @@ const server = http.createServer(async (req, res) => {
       const data = await getTaskStats();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(data));
+    }
+    else if (req.url === '/cron') {
+      const data = await getCronJobs();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ jobs: data }));
     }
     else {
       res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -288,6 +340,7 @@ const server = http.createServer(async (req, res) => {
           '/health',
           '/dashboard',
           '/tasks',
+          '/cron',
         ]
       }));
     }
@@ -302,6 +355,7 @@ server.listen(PORT, () => {
   console.log(`Gateway API v3.0 (Mission Control Redesign) running on :${PORT}`);
   console.log('Endpoints:');
   console.log('  /health - Health check');
-  console.log('  /dashboard - Kanban-focused dashboard data');
+  console.log('  /dashboard - Kanban-focused dashboard data (includes cron jobs)');
   console.log('  /tasks - Task statistics');
+  console.log('  /cron - Cron jobs list');
 });

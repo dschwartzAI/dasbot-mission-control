@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Mail, Calendar, MessageSquare, Github, DollarSign, 
   Users, Activity, Clock, ExternalLink, RefreshCw,
-  AlertCircle, CheckCircle, TrendingUp
+  AlertCircle, CheckCircle, TrendingUp, Repeat
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -222,39 +222,41 @@ export function MissionControl() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Inbox Monitoring */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Email */}
+          {/* Recurring (Cron Jobs) */}
           <Card className="p-6 bg-slate-900/50 border-slate-800 backdrop-blur">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-blue-400" />
-                <h2 className="text-xl font-semibold">Email</h2>
+                <Repeat className="h-5 w-5 text-blue-400" />
+                <h2 className="text-xl font-semibold">Recurring</h2>
               </div>
-              <Badge variant={data.gmail.unreadCount > 10 ? "destructive" : "secondary"}>
-                {data.gmail.unreadCount} unread
+              <Badge variant={data.cronJobs.length > 0 ? 'default' : 'secondary'}>
+                {data.cronJobs.length} tasks
               </Badge>
             </div>
             <ScrollArea className="h-64">
               <div className="space-y-3">
-                {urgentEmails.map((email) => (
-                  <div 
-                    key={email.id} 
-                    className="p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors cursor-pointer"
-                    onClick={() => window.open(`https://mail.google.com/mail/u/0/#inbox/${email.id}`, '_blank')}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{email.from}</p>
-                        <p className="text-slate-300 text-sm truncate">{email.subject}</p>
+                {data.cronJobs.length > 0 ? (
+                  data.cronJobs.map((job) => (
+                    <div key={job.id} className="p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors cursor-default">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{job.title}</p>
+                          <p className="text-slate-300 text-sm truncate">{job.description}</p>
+                        </div>
+                        <span className="text-xs text-slate-500 whitespace-nowrap">
+                          {job.nextRun ? new Date(job.nextRun).toLocaleTimeString() : '-'}
+                        </span>
                       </div>
-                      <span className="text-xs text-slate-500 whitespace-nowrap">
-                        {email.date.split(' ')[1]}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-slate-500 text-center py-8">No tasks</p>
+                )}
               </div>
             </ScrollArea>
           </Card>
+
+          {/* Email */}
 
           {/* Slack */}
           <Card className="p-6 bg-slate-900/50 border-slate-800 backdrop-blur">

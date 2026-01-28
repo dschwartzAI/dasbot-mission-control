@@ -15,6 +15,9 @@ interface Task {
   assignee?: string;
   timestamp?: string;
   dueDate?: string;
+  nextRun?: string;
+  schedule?: string;
+  enabled?: boolean;
 }
 
 interface KanbanBoardV3Props {
@@ -43,6 +46,24 @@ export function KanbanBoardV3({ tasks }: KanbanBoardV3Props) {
       });
     } catch {
       return timestampStr;
+    }
+  };
+
+  const formatNextRun = (nextRunStr: string) => {
+    try {
+      const nextRun = new Date(nextRunStr);
+      const now = new Date();
+      const diffMs = nextRun.getTime() - now.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      
+      if (diffMins < 0) return 'Overdue';
+      if (diffMins < 60) return `${diffMins}m`;
+      if (diffHours < 24) return `${diffHours}h`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d`;
+    } catch {
+      return nextRunStr;
     }
   };
 
@@ -80,12 +101,24 @@ export function KanbanBoardV3({ tasks }: KanbanBoardV3Props) {
               {columnTasks.map((task) => (
                 <Card
                   key={task.id}
-                  className={`task-card p-3 border-l-2 ${getPriorityColor(task.priority)} cursor-pointer group`}
+                  className={`task-card p-3 border-l-2 ${getPriorityColor(task.priority)} cursor-pointer group ${
+                    task.schedule ? 'bg-blue-500/5' : ''
+                  } ${task.enabled === false ? 'opacity-60' : ''}`}
                 >
                   {/* Task Title */}
-                  <h4 className="text-sm font-medium text-foreground/95 mb-1 group-hover:text-primary transition-colors">
-                    {task.title}
-                  </h4>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h4 className="text-sm font-medium text-foreground/95 group-hover:text-primary transition-colors flex-1">
+                      {task.title}
+                    </h4>
+                    {task.schedule && (
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs px-1.5 py-0 bg-blue-500/20 text-blue-400 border-blue-500/30"
+                      >
+                        🔄
+                      </Badge>
+                    )}
+                  </div>
                   
                   {/* Task Description */}
                   {task.description && (
@@ -109,7 +142,7 @@ export function KanbanBoardV3({ tasks }: KanbanBoardV3Props) {
                     </div>
                   )}
                   
-                  {/* Footer: Assignee & Timestamp */}
+                  {/* Footer: Assignee & Timestamp / Next Run */}
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                     <div className="flex items-center gap-1">
                       {task.assignee && (
@@ -119,14 +152,21 @@ export function KanbanBoardV3({ tasks }: KanbanBoardV3Props) {
                         </div>
                       )}
                     </div>
-                    {task.timestamp && (
+                    {task.nextRun ? (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3 text-blue-400" />
+                        <span className="text-xs text-blue-400 font-medium">
+                          Next: {formatNextRun(task.nextRun)}
+                        </span>
+                      </div>
+                    ) : task.timestamp ? (
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
                           {formatTime(task.timestamp)}
                         </span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </Card>
               ))}
