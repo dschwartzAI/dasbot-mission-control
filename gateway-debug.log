@@ -1,0 +1,56 @@
+[dotenv@17.2.3] injecting env (2) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Gateway API v3.0 (Mission Control Redesign) running on :3001
+Endpoints:
+  /health - Health check
+  /dashboard - Kanban-focused dashboard data with cron jobs
+  /tasks - Task statistics
+  /cron - Cron jobs list
+2026-01-28T16:01:11.469Z GET /dashboard
+Sessions error: Command failed: curl -s http://localhost:3002/sessions
+
+2026-01-28T16:01:11.904Z GET /cron
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:01:18.914Z GET /dashboard
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:01:25.136Z GET /dashboard
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:01:39.205Z GET /completed
+2026-01-28T16:01:39.209Z GET /cron
+2026-01-28T16:01:39.221Z GET /sessions
+2026-01-28T16:01:39.302Z GET /completed
+2026-01-28T16:01:39.346Z GET /cron
+2026-01-28T16:01:39.434Z GET /sessions
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:01:46.972Z GET /cron
+2026-01-28T16:01:46.993Z GET /completed
+2026-01-28T16:01:47.019Z GET /sessions
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:01:58.268Z GET /dashboard
+Sessions error: Command failed: curl -s http://localhost:3002/sessions
+
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:02:39.143Z GET /sessions
+2026-01-28T16:02:39.230Z GET /cron
+2026-01-28T16:02:39.244Z GET /completed
+2026-01-28T16:02:39.423Z GET /cron
+2026-01-28T16:02:39.429Z GET /completed
+2026-01-28T16:02:39.432Z GET /sessions
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
+2026-01-28T16:02:46.538Z GET /cron
+2026-01-28T16:02:46.559Z GET /sessions
+2026-01-28T16:02:46.695Z GET /completed
+Cron jobs error: Unexpected token '│', "│
+◇  Docto"... is not valid JSON
