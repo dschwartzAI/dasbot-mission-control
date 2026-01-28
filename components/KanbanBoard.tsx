@@ -46,9 +46,9 @@ export function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
-      <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur">
+      <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur flex-shrink-0">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -76,8 +76,8 @@ export function KanbanBoard({ initialTasks }: KanbanBoardProps) {
       </header>
 
       {/* Kanban Board */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden">
-        <div className="h-full px-6 py-6">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0">
+        <div className="h-full px-6 py-6 min-w-max">
           <div className="flex gap-4 h-full">
             {columns.map((column) => (
               <KanbanColumn
