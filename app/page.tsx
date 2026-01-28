@@ -1,7 +1,7 @@
-import { KanbanBoard } from "@/components/KanbanBoard";
+import { MissionControl } from "@/components/MissionControl";
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  return <KanbanBoard initialTasks={[]} />;
+  return <MissionControl />;
 }
