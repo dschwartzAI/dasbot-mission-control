@@ -9,7 +9,7 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  status: 'recurring' | 'backlog' | 'in-progress' | 'review';
+  status: 'recurring' | 'backlog' | 'in-progress' | 'review' | string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
   assignee?: string;
