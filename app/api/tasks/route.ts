@@ -14,6 +14,7 @@ interface Task {
   links?: Array<{ label: string; url: string; type?: string }>;
   startedAt?: string;
   estimatedCompletion?: string;
+  completedAt?: string;
 }
 
 export async function GET() {
@@ -22,18 +23,20 @@ export async function GET() {
       'Authorization': `Bearer ${GATEWAY_API_TOKEN}`
     } : {};
 
-    // Fetch sessions and cron jobs in parallel
-    const [sessionsRes, cronRes] = await Promise.all([
+    // Fetch sessions, cron jobs, and completed tasks in parallel
+    const [sessionsRes, cronRes, completedRes] = await Promise.all([
       fetch(`${GATEWAY_API_URL}/sessions`, { headers, cache: 'no-store' }),
-      fetch(`${GATEWAY_API_URL}/cron`, { headers, cache: 'no-store' })
+      fetch(`${GATEWAY_API_URL}/cron`, { headers, cache: 'no-store' }),
+      fetch(`${GATEWAY_API_URL}/completed`, { headers, cache: 'no-store' })
     ]);
 
-    if (!sessionsRes.ok || !cronRes.ok) {
+    if (!sessionsRes.ok || !cronRes.ok || !completedRes.ok) {
       throw new Error('Failed to fetch from Gateway API');
     }
 
     const sessionsData = await sessionsRes.json();
     const cronData = await cronRes.json();
+    const completedData = await completedRes.json();
 
     // Transform sessions -> in-progress tasks
     const sessionTasks: Task[] = (sessionsData.sessions || [])
@@ -62,8 +65,11 @@ export async function GET() {
         : undefined,
     }));
 
+    // Get completed tasks from the file
+    const completedTasks: Task[] = completedData.tasks || [];
+
     return NextResponse.json({
-      tasks: [...sessionTasks, ...cronTasks],
+      tasks: [...sessionTasks, ...cronTasks, ...completedTasks],
       lastUpdated: new Date().toISOString()
     });
 
