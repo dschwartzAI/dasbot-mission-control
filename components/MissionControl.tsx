@@ -58,7 +58,17 @@ interface DashboardData {
     completedToday: number;
     recentTasks: any[];
   };
-  timestamp: string;
+  cronJobs: Array<{
+        id: string;
+        title: string;
+        description: string;
+        status: string;
+        schedule: string;
+        nextRun: string;
+        enabled: boolean;
+        tags: string[];
+    }>;
+    timestamp: string;
 }
 
 function formatTimeRemaining(dateStr: string): string {
