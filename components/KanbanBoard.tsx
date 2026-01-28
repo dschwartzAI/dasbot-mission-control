@@ -32,7 +32,7 @@ export function KanbanBoard({ initialTasks }: KanbanBoardProps) {
   };
 
   useEffect(() => {
-    // Poll every 30 seconds
+    fetchTasks();
     const interval = setInterval(fetchTasks, 30000);
     return () => clearInterval(interval);
   }, []);

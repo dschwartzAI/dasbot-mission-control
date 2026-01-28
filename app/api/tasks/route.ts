@@ -19,9 +19,10 @@ interface Task {
 
 export async function GET() {
   try {
-    const headers = GATEWAY_API_TOKEN ? {
-      'Authorization': `Bearer ${GATEWAY_API_TOKEN}`
-    } : {};
+    const headers: Record<string, string> = {};
+    if (GATEWAY_API_TOKEN) {
+      headers['Authorization'] = `Bearer ${GATEWAY_API_TOKEN}`;
+    }
 
     // Fetch sessions, cron jobs, and completed tasks in parallel
     const [sessionsRes, cronRes, completedRes] = await Promise.all([
