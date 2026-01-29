@@ -167,7 +167,7 @@ export function MissionControl() {
   const runwayColor = runwayDays < 60 ? 'text-red-400' : runwayDays < 120 ? 'text-yellow-400' : 'text-green-400';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 p-2 md:p-4">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
